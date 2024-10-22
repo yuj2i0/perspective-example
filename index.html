@@ -1,0 +1,87 @@
+<html>
+
+<head>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.js"></script>
+  <script type="module"
+    src="https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/cdn/perspective-viewer.js"></script>
+  <script type="module"
+    src="https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid/dist/cdn/perspective-viewer-datagrid.js"></script>
+  <script type="module"
+    src="https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc/dist/cdn/perspective-viewer-d3fc.js"></script>
+  <link rel="stylesheet" crossorigin="anonymous"
+    href="https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/css/themes.css" />
+
+  <style>
+    perspective-viewer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <perspective-viewer id="viewer" ,> </perspective-viewer>
+
+  <script type="module">
+    import perspective from "https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.js";
+    window.addEventListener("DOMContentLoaded", async function () {
+      // Create a client that expects a Perspective server
+      // to accept connections at the specified URL.
+      const websocket = await perspective.websocket(
+        "ws://localhost:8080/data"
+      );
+
+      // Get a handle to the Table on the server
+      const server_table = await websocket.open_table("temp_table");
+
+      // Create a new view
+      const server_view = await server_table.view();
+
+      // Create a Table on the client using `perspective.worker()`
+      const worker = await perspective.worker();
+      const client_table = await worker.table(server_view, { index: "id" });
+
+      // Load the client table in the `<perspective-viewer>`.
+      document.getElementById("viewer").load(client_table);
+
+
+      viewer.restore
+        (
+          {
+            "version": "2.10.1",
+            "plugin": "Datagrid",
+            "plugin_config": {
+              "columns": {},
+              "editable": false,
+              "scroll_lock": false
+            },
+            "columns_config": {},
+            "settings": true,
+            "theme": "Pro Dark",
+            "title": null,
+            "group_by": [
+              "Year",
+              "Month",
+              "Day"
+            ],
+            "split_by": [],
+            "columns": [
+              "impact_of_px_approx_index_ccy",
+              "total_approximated_pnl",
+              "total_value"
+            ],
+            "filter": [],
+            "sort": [],
+            "expressions": {},
+            "aggregates": {}
+          }
+        )
+      viewer.toggleConfig();
+    });
+  </script>
+</body>
+
+</html>
